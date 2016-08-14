@@ -1,0 +1,22 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html" />
+	<meta name="author" content="admin" />
+
+	<title>Page Crawler</title>
+</head>
+
+<body>
+    <form action='crawler.php' method='post'>
+        Enter the URL:
+        <input type='text' name='url' size='30' autofocus required>
+        <input type='submit' value='submit'>
+    </form>
+    <?php
+        require_once("crawler.php");
+    ?>
+</body>
+</html>
+
+<!-- input type="url"-->
