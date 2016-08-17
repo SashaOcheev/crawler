@@ -4,24 +4,7 @@
  * @author admin
  * @copyright 2016
  */
-
-//function CrawleSite($url)
-
-function CrawlePage($cur, $main)
-{
-    $dom = new DOMDocument;
-    $dom->loadHTML(file_get_contents($cur));
-    $arr = array();
-    foreach ($dom->getElementsByTagName('a') as $node)
-    {
-        $ref = $node->getAttribute("href");
-        if (IsThisSite($main, $ref))
-        {
-            $arr[] = MakeWorkingRef($cur, $ref, $main);
-        }
-    }
-    return $arr;
-}
+require_once 'mysqltable.php';
 
 function MakeWorkingRef($cur, $ref, $main)
 {
@@ -32,8 +15,8 @@ function MakeWorkingRef($cur, $ref, $main)
     }
     
     $ref = CleanRef($ref);
-    $main = CleanRef($main);
-    $cur = CleanRef($cur);
+    $main = rtrim($main, '/');
+    $cur = rtrim($cur, '/');
     
     return MakeAbsolute($cur, $ref, $main);
 }
@@ -77,12 +60,20 @@ function MakeAbsolute($cur, $ref, $main = '')
         return $main.$ref;
     }
      
-    return GetAbsolutePathRelativilyCurrentDir($cur, $ref);
+    return rtrim(GetAbsolutePathRelativilyCurrentDir($cur, $ref), '/');
 }
 
 function GetMainAddress($ref)
 {
-    $path = strlen(explode('/', $ref, 4)[3]);
+    $arr = explode('/', $ref, 4);
+    if (count($arr) < 4)
+    {
+        $path = -1;
+    }
+    else
+    {
+        $path = strlen(explode('/', $ref, 4)[3]);
+    }
     return substr($ref, 0, strlen($ref) - $path - 1);
 }
 

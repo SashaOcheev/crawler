@@ -24,6 +24,7 @@ echo '4 '.IsThisSite('http://main.ru', 'http://main.ru/1').'<br>';
 echo '5 '.(!IsThisSite('http://main.ru', 'http://maisdf')).'<br>';
 echo '<br>';
 
+/*
 echo '<br>'.'Crawl Page'.'<br>';
 $main = 'http://arcadefire.com/';
 $cur = 'http://arcadefire.com/';
@@ -31,5 +32,10 @@ $res = CrawlePage($cur, $main);
 foreach ($res as $ref)
 {
     echo "<a href='$ref'>$ref</a><br>";
-}
+}*/
+
+echo '<br>'.'Crawl Page'.'<br>';
+$arr = explode('/', 'http://aracdefire.com', 4);
+echo count($arr);
+//CrawleSite('http://arcadefire.com/');
 ?>
