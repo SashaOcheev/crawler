@@ -21,7 +21,7 @@ class SQLTable
         $this->connection->query("DROP TABLE $this->name");
         $query = "CREATE TABLE $this->name(
                   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                  page VARCHAR(255) NOT NULL UNIQUE)";
+                  page VARCHAR(255))";
         $result = $this->connection->query($query);
         if (!$result)
         {

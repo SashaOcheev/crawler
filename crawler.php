@@ -4,12 +4,13 @@
  * @author admin
  * @copyright 2016
  */
-require_once 'workingref.php';
+require_once 'absolutepath.php';
+require_once 'mysqltable.php';
 
 ini_set('max_execution_time', 900);
 //var_dump(libxml_use_internal_errors(true));
-
-if ($_POST)
+/*
+if (isset($_POST['url']))
 {
     ShowAllTegAHref($_POST['url']);
 } 
@@ -46,5 +47,49 @@ function CrawlePage($cur, $main, &$table)
         }
     }
 }
+*/
+function crawle_site($url)
+{
+    $host = parse_url($url, PHP_URL_HOST).'/';
+    if (!$host)
+    {
+        return FALSE;
+    }
+    
+    $allRefs = array($host);
+    for ($currentUrlNum = 0; $currentUrlNum < count($allRefs); ++$currentUrlNum)
+    {
+        crawle_page($allRefs, $$refs[$currentUrlNum]);
+    }
+}
 
+function crawle_page(&$links, $main, $cur)
+{
+    
+}
+
+function add_url(&$links, $url)
+{
+    if (!in_array($url, $links))
+    {
+        $links[] = $url;
+    }
+    
+    /*
+    foreach ($links as $cur)
+    {
+        if (get_url_host_and_path($cur) == get_url_host_and_path($url))
+        {
+           break; 
+        }
+    }
+    $links[] = $url;
+    */
+}
+
+function is_this_site($main, $url)
+{
+    $urlHost = parse_url($url, PHP_URL_HOST);
+    return !$urlHost || $urlHost == parse_url($main, PHP_URL_HOST);
+}
 ?>
