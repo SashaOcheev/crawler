@@ -7,11 +7,15 @@
 
 require_once 'crawler.php';
 
+//crawle_site('http://arcadefire.com/site/');
+//crawle_site('http://airwar.ru/');
+crawle_site('http://interpolnyc.com/');
+/*
 $ch = init_curl();
 $links = null;
 crawle_page($ch, $links, 'http://airwar.ru/');
 curl_close($ch);
-
+*/
 /*
 require_once 'absolutepath.php';
 

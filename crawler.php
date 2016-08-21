@@ -8,7 +8,6 @@ require_once 'absolutepath.php';
 require_once 'mysqltable.php';
 
 ini_set('max_execution_time', 900);
-//var_dump(libxml_use_internal_errors(true));
 /*
 if (isset($_POST['url']))
 {
@@ -20,26 +19,32 @@ if (isset($_POST['url']))
 
 function crawle_site($url)
 {
-    $host = parse_url($url, PHP_URL_HOST);
-    if (!$host)
-    {
-        return FALSE;
-    }
-    
-    $allRefs = array($host);
+    $url = rtrim($url, '/');
+    $allRefs = array($url);
     $ch = init_curl();
+    $host = parse_url($url, PHP_URL_HOST);
     for ($currentUrlNum = 0; $currentUrlNum < count($allRefs); ++$currentUrlNum)
     {
-        crawle_page($ch, $allRefs, $refs[$currentUrlNum]);
+        $cur = $allRefs[$currentUrlNum];
+        if (!is_this_site($host, $cur))
+        {
+            continue;
+        }
+        $arr = crawle_page($ch, $allRefs, $cur);
+        foreach ($arr as $url)
+        {
+            add_url($allRefs, $cur, $url);
+        }
     }
     curl_close($ch);
+    echo_links_into_table($allRefs);
 }
 
 function crawle_page(&$ch, &$links, $cur)
 {
+    echo $cur.'<br>';
     $data = get_data($ch, $cur);
-    $arr = get_all_hyperlinks($data);
-    echo_links_into_table($arr);
+    return get_all_hyperlinks($data);
 }
 
 function get_data(&$ch, $url)
@@ -49,10 +54,9 @@ function get_data(&$ch, $url)
 	return $data;
 }
 
-function get_all_hyperlinks($doc)
+function get_all_hyperlinks(&$doc)
 {
     $arr = null;
-    /*preg_match_all("/<a.+?href\=\"(.*?)\".*?>/", $doc, $arr, PREG_PATTERN_ORDER);*/
     preg_match_all("/<a.+?href\=\"(.*?)\".*?>/", $doc, $arr, PREG_PATTERN_ORDER);
     return $arr[1];
 }
@@ -63,13 +67,19 @@ function echo_links_into_table(&$arr)
     $j = 0;
     foreach ($arr as $row)
     {
-        echo '<tr><td>'.++$j.'</td><td><a href=\"'.$row.'>'.$row.'</a><td></tr>';
+        echo '<tr><td>'.++$j.'</td><td><a href="'.$row.'">'.$row.'</a><td></tr>';
     }
     echo '</table>';
 }
 
-function add_url(&$links, $url)
+function add_url(&$links, $cur, $url)
 {
+    $url = delete_query_and_mark($url);
+    if (!$url)
+    {
+        return ;
+    }
+    $url = get_absolute_path($cur, $url);
     if (!in_array($url, $links))
     {
         $links[] = $url;
@@ -96,10 +106,9 @@ function init_curl()
     return $ch;
 }
 
-function is_this_site($main, $url)
+function is_this_site($host, $url)
 {
-    $urlHost = parse_url($url, PHP_URL_HOST);
-    return !$urlHost || $urlHost == parse_url($main, PHP_URL_HOST);
+    return parse_url($url, PHP_URL_HOST) == $host;
 }
 
 ?>

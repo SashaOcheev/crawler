@@ -5,9 +5,12 @@
  * @copyright 2016
  */
  
-function get_url_host_and_path($url)
+function delete_query_and_mark($url)
 {
-    return parse_url($url, PHP_URL_HOST).parse_url($url, PHP_URL_PATH);
+    $url = parse_url($url);
+    return (isset($url['scheme']) ? $url['scheme'].'://' : '').
+           (isset($url['host']) ? $url['host'] : '').
+           (isset($url['path']) ? $url['path'] : '');
 }
  
 function get_absolute_path($cur, $url)
@@ -15,13 +18,13 @@ function get_absolute_path($cur, $url)
     $parsed_url = parse_url($url);   
     if (isset($parsed_url['host']))
     {
-        return $url;
+        return rtrim($url, '/');
     }
     
     $parsed_cur = parse_url($cur);
     if ($url[0] == '/')
     {
-        return $parsed_cur['scheme'].'://'.$parsed_cur['host'].$url;
+        return rtrim($parsed_cur['scheme'].'://'.$parsed_cur['host'].$url, '/');
     }
     
     return rtrim(get_abs_path_relativily_cur_dir($cur, $url), '/');  
