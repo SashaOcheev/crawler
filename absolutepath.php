@@ -35,7 +35,9 @@ function get_abs_path_relativily_cur_dir($cur, $ref)
     $arr = explode("../", $ref);
     $level = count($arr) - 1;//количесво надпапок
     $ref = $arr[$level];//последн€€ часть
-    $level = (!$level && pathinfo($cur, PATHINFO_EXTENSION)) ? 1 : $level;
+    $curPath = parse_url($cur, PHP_URL_PATH);
+    $level = (!$level && pathinfo($curPath, PATHINFO_EXTENSION) && strlen($curPath) > 1)
+             ? 1 : $level;
     $cur = implode('/', explode('/', $cur, -$level));//возврат к нужной папке
     return $cur.'/'.$ref;
 }

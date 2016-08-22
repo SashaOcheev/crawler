@@ -12,34 +12,39 @@ ini_set('max_execution_time', 900);
 if (isset($_POST['url']))
 {
     crawle_site($_POST['url']);
-} 
+}
 
 
 function crawle_site($url)
 {
     $url = rtrim($url, '/');
-    $allRefs = array($url);
+    $setRefs = array($url => NULL);
+    $arrRefs = array($url);
     $ch = init_curl();
     $host = parse_url($url, PHP_URL_HOST);
+    echo '<table><tr><th align="left">ID</th><th align="left">URL</th></tr>';///////////
     for ($currentUrlNum = 0, $count = 1; $currentUrlNum < $count; ++$currentUrlNum)
     {
-        $cur = $allRefs[$currentUrlNum];
+        $cur = $arrRefs[$currentUrlNum];
+        echo '<tr><td>'.$currentUrlNum.'</td><td><a href="'.$cur.'">'.$cur.'</a><td></tr>';
         if (!is_this_site($host, $cur))
         {
             continue;
         }
-        $arr = crawle_page($ch, $allRefs, $cur);
+        $arr = crawle_page($ch, $cur);
         foreach ($arr as $url)
         {
-            if (add_url($allRefs, $cur, $url))
+            if ($url = can_add_url($setRefs, $cur, $url))
             {
                 ++$count;
+                $setRefs[$url] = NULL;
+                $arrRefs[] = $url;
             }
         }
     }
     curl_close($ch);
-    echo_links_into_table($allRefs);
-    record_in_db('site', $allRefs);
+    echo '</table>';//echo_links_into_table($arrRefs);
+    record_in_db('site', $arrRefs);
 }
 
 function init_curl()
@@ -56,7 +61,7 @@ function is_this_site($host, $url)
     return parse_url($url, PHP_URL_HOST) == $host;
 }
 
-function crawle_page(&$ch, &$links, $cur)
+function crawle_page(&$ch, $cur)
 {
     $data = get_data($ch, $cur);
     return get_all_hyperlinks($data);
@@ -75,7 +80,7 @@ function get_all_hyperlinks(&$doc)
     return $arr[1];
 }
 
-function add_url(&$links, $cur, $url)
+function can_add_url(&$setRefs, $cur, $url)
 {
     $url = delete_query_and_mark($url);
     if (!$url)
@@ -83,12 +88,11 @@ function add_url(&$links, $cur, $url)
         return FALSE;
     }
     $url = get_absolute_path($cur, $url);
-    if (!in_array($url, $links))
+    if (array_key_exists($url, $setRefs))
     {
-        $links[] = $url;
-        return TRUE;
+        return FALSE;
     }
-    return FALSE;
+    return $url;
 }
 
 function echo_links_into_table(&$arr)
