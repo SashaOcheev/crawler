@@ -6,6 +6,16 @@
  */
 require_once 'login.php';
 
+function record_in_db($name, &$arr)
+{
+    $table = new SQLTable($name);
+    foreach ($arr as $url)
+    {
+        $table->add_page($url);
+    }
+    $table->close();
+}
+
 class SQLTable
 {
     public function __construct($name)
@@ -17,7 +27,6 @@ class SQLTable
             die($this->connection->connect_error);
         }
         $this->name = mysql_entities_fix_string($this->connection, $name);
-        $this->name = 'site';
         $this->connection->query("DROP TABLE $this->name");
         $query = "CREATE TABLE $this->name(
                   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -29,14 +38,14 @@ class SQLTable
         }
     }
     
-    public function AddPage($url)
+    public function add_page($url)
     {
-        $url = mysql_entities_fix_string($this->connection, $url);
+        //$url = mysql_entities_fix_string(*/$this->connection, $url);
         $query = "INSERT INTO $this->name VALUES(NULL, '$url')";
         return $this->connection->query($query);
     }
     
-    public function SetResult()
+    public function set_result()
     {
         $query = "SELECT * FROM $this->name";
         $this->result = $this->connection->query($query);
@@ -46,9 +55,9 @@ class SQLTable
         }
     }
     
-    public function GetRow($j)
+    public function get_row($id)
     {
-        if ($this->result->data_seek($j))
+        if ($this->result->data_seek($id))
         {
             return $this->result->fetch_array(MYSQLI_NUM);
         }
@@ -56,6 +65,11 @@ class SQLTable
         {//$d = array("url" => 1, 1 => 2, 3 => 3); isset($d[$url]);
             return FALSE;
         }
+    }
+    
+    public function close()
+    {
+        $this->connection->close();
     }
     
     private $name;

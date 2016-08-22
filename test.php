@@ -9,7 +9,7 @@ require_once 'crawler.php';
 
 //crawle_site('http://arcadefire.com/site/');
 //crawle_site('http://airwar.ru/');
-crawle_site('http://interpolnyc.com/');
+//crawle_site('http://interpolnyc.com/');
 /*
 $ch = init_curl();
 $links = null;
