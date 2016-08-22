@@ -9,10 +9,11 @@ require_once 'login.php';
 function record_in_db($name, &$arr)
 {
     $table = new SQLTable($name);
-    foreach ($arr as $url)
-    {
-        $table->add_page($url);
-    }
+    //foreach ($arr as $url)
+    //{
+        //$table->add_page($url);
+    //}
+    $table->add_array($arr);
     $table->close();
 }
 
@@ -43,6 +44,21 @@ class SQLTable
         //$url = mysql_entities_fix_string(*/$this->connection, $url);
         $query = "INSERT INTO $this->name VALUES(NULL, '$url')";
         return $this->connection->query($query);
+    }
+    
+    public function add_array(&$arr)
+    {
+        for ($i = 0, $count = count($arr), $length = 100; $i < $count; $i += $length)
+        {
+            $slice = array_slice($arr, $i, $length);
+            foreach ($slice as &$node)
+            {
+                $node = "(NULL, '$node')";
+            }
+            $slice = implode($slice, ',');
+            $query = "INSERT INTO $this->name VALUES".$slice;
+            $this->connection->query($query);
+        }
     }
     
     public function set_result()

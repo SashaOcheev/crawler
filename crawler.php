@@ -26,8 +26,8 @@ function crawle_site($url)
     for ($currentUrlNum = 0, $count = 1; $currentUrlNum < $count; ++$currentUrlNum)
     {
         $cur = $arrRefs[$currentUrlNum];
-        echo '<tr><td>'.$currentUrlNum.'</td><td><a href="'.$cur.'">'.$cur.'</a><td></tr>';
-        if (!is_this_site($host, $cur))
+        echo '<tr><td>'.($currentUrlNum + 1).'</td><td><a href="'.$cur.'">'.$cur.'</a><td></tr>';
+        if (!can_view($host, $cur))
         {
             continue;
         }
@@ -53,12 +53,15 @@ function init_curl()
 	$timeout = 5;
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION,1);
     return $ch;
 }
 
-function is_this_site($host, $url)
+function can_view($host, $url)
 {
-    return parse_url($url, PHP_URL_HOST) == $host;
+    $allowed_extensions = array('', 'html', 'htm', 'php');
+    $ext = pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION);
+    return parse_url($url, PHP_URL_HOST) == $host && in_array($ext, $allowed_extensions);
 }
 
 function crawle_page(&$ch, $cur)
@@ -76,8 +79,8 @@ function get_data(&$ch, $url)
 function get_all_hyperlinks(&$doc)
 {
     $arr = null;
-    preg_match_all("/<a.+?href\=\"(.*?)\".*?>/", $doc, $arr, PREG_PATTERN_ORDER);
-    return $arr[1];
+    preg_match_all("/<a.+?href\=(\"|\')(.*?)(\"|\').*?>/i", $doc, $arr, PREG_PATTERN_ORDER);
+    return $arr[2];
 }
 
 function can_add_url(&$setRefs, $cur, $url)
