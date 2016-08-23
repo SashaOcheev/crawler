@@ -7,7 +7,7 @@
 require_once 'absolutepath.php';
 require_once 'mysqltable.php';
 
-ini_set('max_execution_time', 900);
+ini_set('max_execution_time', 0);
 
 if (isset($_POST['url']))
 {
@@ -53,7 +53,7 @@ function init_curl()
 	$timeout = 5;
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION,1);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
     return $ch;
 }
 
@@ -61,7 +61,8 @@ function can_view($host, $url)
 {
     $allowed_extensions = array('', 'html', 'htm', 'php');
     $ext = pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION);
-    return parse_url($url, PHP_URL_HOST) == $host && in_array($ext, $allowed_extensions);
+    $ext = ($ext) ? $ext : '';
+    return ((parse_url($url, PHP_URL_HOST) == $host) && (in_array($ext, $allowed_extensions)));
 }
 
 function crawle_page(&$ch, $cur)
@@ -73,7 +74,8 @@ function crawle_page(&$ch, $cur)
 function get_data(&$ch, $url)
 {
 	curl_setopt($ch, CURLOPT_URL, $url);
-	return curl_exec($ch);
+	$data = curl_exec($ch);
+    return $data;
 }
 
 function get_all_hyperlinks(&$doc)
@@ -85,7 +87,7 @@ function get_all_hyperlinks(&$doc)
 
 function can_add_url(&$setRefs, $cur, $url)
 {
-    $url = delete_query_and_mark($url);
+    $url = delete_mark($url);
     if (!$url)
     {
         return FALSE;

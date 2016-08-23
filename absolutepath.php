@@ -5,12 +5,16 @@
  * @copyright 2016
  */
  
-function delete_query_and_mark($url)
+function delete_mark($url)
 {
+    /*$pos = strpos($url, '#');
+    $pos = ($pos) ? $pos - 1 : strlen($url);*/
     $url = parse_url($url);
     return (isset($url['scheme']) ? $url['scheme'].'://' : '').
            (isset($url['host']) ? $url['host'] : '').
-           (isset($url['path']) ? $url['path'] : '');
+           (isset($url['path']) ? $url['path'] : '').
+           (isset($url['query']) ? '?'.$url['query'] : '');
+    //return substr($url, 0, $pos);
 }
  
 function get_absolute_path($cur, $url)
